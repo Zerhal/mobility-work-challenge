@@ -1,0 +1,46 @@
+# .gitleaks.toml
+# Gitleaks configuration for secret scanning.
+# https://github.com/gitleaks/gitleaks
+
+title = "Mobility Work — Gitleaks config"
+
+[extend]
+# Start from the default ruleset (covers AWS keys, Stripe, GitHub tokens, etc.)
+useDefault = true
+
+[[rules]]
+id          = "zendesk-token"
+description = "Zendesk API token"
+regex       = '''(?i)zendesk[_\-]?token\s*[=:]\s*[\'"]?[a-zA-Z0-9]{32,}[\'"]?'''
+tags        = ["zendesk", "api-key"]
+
+[[rules]]
+id          = "anthropic-key"
+description = "Anthropic API key"
+regex       = '''sk-ant-[a-zA-Z0-9\-_]{32,}'''
+tags        = ["anthropic", "ai", "api-key"]
+
+[[rules]]
+id          = "hardcoded-php-secret"
+description = "Potential hardcoded PHP constant secret"
+regex       = '''const\s+[A-Z_]*(?:SECRET|TOKEN|PASSWORD|KEY|PWD)[A-Z_]*\s*=\s*[\'"][a-zA-Z0-9]{16,}[\'"]'''
+tags        = ["php", "hardcoded-secret"]
+# This rule would have caught the original bug:
+#   const PRODUCTION_SECRET_TOKEN = '7a960781b588403ca32116048238d01c';
+
+[allowlist]
+# Ignore test fixtures and example files
+paths = [
+    ".env.example",
+    "phpunit.xml",
+    "tests/",
+    "README.md",
+]
+
+# Ignore known-safe placeholder strings
+regexes = [
+    "your[_-]?api[_-]?key",
+    "your[_-]?token",
+    "sk-ant-your-key-here",
+    "test_token",
+]

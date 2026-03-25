@@ -1,0 +1,9 @@
+/vendor/
+/.env
+/composer.lock
+/.phpunit.result.cache
+/.phpunit.cache
+/.php-cs-fixer.cache
+/node_modules/
+/package-lock.json
+CHANGELOG.md

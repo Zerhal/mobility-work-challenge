@@ -1,0 +1,49 @@
+name: Security
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+  schedule:
+    # Run every Monday at 08:00 UTC — catches newly published vulnerabilities
+    - cron: "0 8 * * 1"
+
+jobs:
+  secret-scan:
+    name: "Secret scan (Gitleaks)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history for accurate scan)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Gitleaks will fail the job if ANY secret pattern is detected in history.
+        # Config: .gitleaks.toml (optional — see below for customisation)
+
+  dependency-audit:
+    name: "Dependency audit (composer)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          coverage: none
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Audit for known vulnerabilities
+        # composer audit checks packages against the Packagist Security Advisories DB
+        run: composer audit --no-interaction

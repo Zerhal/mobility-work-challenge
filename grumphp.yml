@@ -1,0 +1,24 @@
+grumphp:
+  stop_on_failure: true
+
+  tasks:
+
+    git_commit_message:
+      matchers:
+        - "/^(feat|fix|chore|docs|refactor|test|ci|perf|build)(\\([a-z0-9-]+\\))?: .{3,72}$/i"
+      case_insensitive: false
+      multiline: false
+      additional_modifiers: ""
+
+    phplint:
+      triggered_by: [ "php" ]
+
+    phpstan:
+      configuration: "phpstan.neon"
+      triggered_by: [ "php" ]
+      use_grumphp_paths: false
+
+    phpunit:
+      config_file: "phpunit.xml"
+      testsuite: "Unit"
+      # triggered_by n'existe pas pour phpunit dans cette version
